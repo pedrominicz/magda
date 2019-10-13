@@ -47,6 +47,12 @@ if !exists('g:agda_started')
     let g:agda_started = 1
 endif
 
+if exists('b:agda_buffer_started')
+    finish
+endif
+
+let b:agda_buffer_started = 1
+
 function s:AgdaSendCommand(cmd)
     let l:name = expand('%:p')
 
@@ -79,5 +85,5 @@ function s:AgdaCompute()
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
-nnoremap <buffer> <localleader>l :call <sid>AgdaLoad()<cr>
-nnoremap <buffer> <localleader>n :call <sid>AgdaCompute()<cr>
+command -buffer -nargs=0 AgdaLoad call AgdaLoad()
+command -buffer -nargs=0 AgdaCompute call AgdaCompute()
