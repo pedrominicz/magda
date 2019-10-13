@@ -47,11 +47,11 @@ if !exists('g:agda_started')
     let g:agda_started = 1
 endif
 
-if exists('b:agda_buffer_started')
+if exists('b:did_ftplugin')
     finish
 endif
 
-let b:agda_buffer_started = 1
+let b:did_ftplugin = 1
 
 function s:AgdaSendCommand(cmd)
     let l:name = expand('%:p')
@@ -85,5 +85,5 @@ function s:AgdaCompute()
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
-command -buffer -nargs=0 AgdaLoad call AgdaLoad()
-command -buffer -nargs=0 AgdaCompute call AgdaCompute()
+command! -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
+command! -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
