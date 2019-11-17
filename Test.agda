@@ -8,3 +8,7 @@ zero    + n = n
 
 goal : ℕ → ℕ
 goal = ?
+
+-- zero + suc zero
+-- suc zero + suc zero
+-- suc (suc zero) + suc zero

@@ -51,6 +51,7 @@ if !exists('g:agda_started')
                 \   'on_stdout': function('s:OnEvent'),
                 \ })
 
+
     let g:agda_started = 1
 endif
 
@@ -59,6 +60,22 @@ if exists('b:did_ftplugin')
 endif
 
 let b:did_ftplugin = 1
+
+function s:GetVisualSelection()
+    let [l:line_start, l:column_start] = getpos("'<")[1:2]
+    let [l:line_end, l:column_end] = getpos("'>")[1:2]
+
+    let l:lines = getline(l:line_start, l:line_end)
+
+    if len(l:lines) == 0
+        return []
+    endif
+
+    let l:lines[-1] = l:lines[-1][: l:column_end - (&selection == 'inclusive' ? 1 : 2)]
+    let l:lines[0] = l:lines[0][l:column_start - 1:]
+
+    return l:lines
+endfunction
 
 function s:AgdaSendCommand(cmd)
     let l:name = expand('%:p')
@@ -76,8 +93,8 @@ function s:AgdaLoad()
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
-function s:AgdaCompute() range
-    let l:input = join(getline(a:firstline, a:lastline), '\\n')
+function s:AgdaCompute()
+    let l:input = join(s:GetVisualSelection(), '\\n')
 
     let l:input = substitute(l:input, '\', '\\\\', 'g')
     let l:input = substitute(l:input, '"', '\\"', 'g')
@@ -88,4 +105,4 @@ function s:AgdaCompute() range
 endfunction
 
 command! -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
-command! -buffer -range -nargs=0 AgdaCompute <line1>,<line2>call s:AgdaCompute()
+command! -buffer -range -nargs=0 AgdaCompute call s:AgdaCompute()
