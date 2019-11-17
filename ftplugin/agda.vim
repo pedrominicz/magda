@@ -61,22 +61,6 @@ endif
 
 let b:did_ftplugin = 1
 
-function s:GetVisualSelection()
-    let [l:line_start, l:column_start] = getpos("'<")[1:2]
-    let [l:line_end, l:column_end] = getpos("'>")[1:2]
-
-    let l:lines = getline(l:line_start, l:line_end)
-
-    if len(l:lines) == 0
-        return []
-    endif
-
-    let l:lines[-1] = l:lines[-1][: l:column_end - (&selection == 'inclusive' ? 1 : 2)]
-    let l:lines[0] = l:lines[0][l:column_start - 1:]
-
-    return l:lines
-endfunction
-
 function s:AgdaSendCommand(cmd)
     let l:name = expand('%:p')
 
@@ -94,15 +78,44 @@ function s:AgdaLoad()
 endfunction
 
 function s:AgdaCompute()
-    let l:input = join(s:GetVisualSelection(), '\\n')
+    call inputsave()
+
+    let l:input = input('Expression: ')
+
+    call inputrestore()
 
     let l:input = substitute(l:input, '\', '\\\\', 'g')
     let l:input = substitute(l:input, '"', '\\"', 'g')
+    let l:input = substitute(l:input, "\n", '\\n', 'g')
 
     let l:cmd = 'Cmd_compute_toplevel DefaultCompute "' . l:input . '"'
 
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
+function s:GetVisualSelection()
+    try
+        let l:a = @a
+        normal! gv"ay
+        return split(@a, "\n")
+    finally
+        let @a = l:a
+    endtry
+endfunction
+
+function s:AgdaComputeSelection()
+    let l:input = s:GetVisualSelection()
+
+    for l:line in l:input
+        let l:line = substitute(l:line, '\', '\\\\', 'g')
+        let l:line = substitute(l:line, '"', '\\"', 'g')
+
+        let l:cmd = 'Cmd_compute_toplevel DefaultCompute "' . l:line . '"'
+
+        call s:AgdaSendCommand(l:cmd)
+    endfor
+endfunction
+
 command! -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
-command! -buffer -range -nargs=0 AgdaCompute call s:AgdaCompute()
+command! -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
+command! -buffer -range -nargs=0 AgdaComputeSelection call s:AgdaComputeSelection()
