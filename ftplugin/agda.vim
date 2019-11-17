@@ -55,10 +55,12 @@ if !exists('g:agda_started')
         return l:msg
     endfunction
 
+    " The user is not supposed directly interact with `agda_job` nor
+    " `agda_started`. `agda_job` is defined as a global variable to permit
+    " only one Agda instance for multiple Agda files.
     let g:agda_job = jobstart(['agda', '--interaction-json'], {
                 \   'on_stdout': function('s:OnEvent'),
                 \ })
-
 
     let g:agda_started = 1
 endif
@@ -72,16 +74,13 @@ let b:did_ftplugin = 1
 let s:cpo_save = &cpo
 set cpo&vim
 
-let b:undo_ftplugin = 'setlocal comments< commentstring<'
+let b:undo_ftplugin = 'setlocal comments< commentstring< |'
 
 setlocal comments=s1fl:{-,mb:-,ex:-},:--
 setlocal commentstring=--\ %s
 " See `:h fo-table`.
 setlocal formatoptions-=t
 setlocal formatoptions+=croql
-
-let &cpo = s:cpo_save
-unlet s:cpo_save
 
 function s:AgdaSendCommand(cmd)
     " Full path of current file.
@@ -166,6 +165,14 @@ function s:AgdaComputeSelection()
     endfor
 endfunction
 
-command! -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
-command! -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
-command! -buffer -range -nargs=0 AgdaComputeSelection call s:AgdaComputeSelection()
+let b:undo_ftplugin .= 'delcommand AgdaLoad |'
+let b:undo_ftplugin .= 'delcommand AgdaCompute |'
+let b:undo_ftplugin .= 'delcommand AgdaComputeSelection'
+
+" This is all the interface that this plugin exposes.
+command -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
+command -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
+command -buffer -range -nargs=0 AgdaComputeSelection call s:AgdaComputeSelection()
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
