@@ -1,4 +1,7 @@
 if !exists('g:agda_started')
+    " `OnEvent` and `ParseJson` functions deal with the output of the Agda
+    " process. Dealing with JSON is extremely easy thanks to Neovim's built-in
+    " function `json_decode`.
     function s:OnEvent(id, data, event) dict
         let l:msg = ''
 
@@ -10,9 +13,14 @@ if !exists('g:agda_started')
             endtry
         endfor
 
+        " For now all feedback is provided via echoes. Maybe opening an
+        " auxiliary output buffer would be desirable, however this will not be
+        " implemented unless I see the need and it doesn't make the plugin too
+        " complicated.
         echo l:msg
     endfunction
 
+    " Only deals with `DisplayInfo` messages.
     function s:ParseJson(json)
         let l:msg = ''
 
@@ -61,18 +69,48 @@ endif
 
 let b:did_ftplugin = 1
 
+let s:cpo_save = &cpo
+set cpo&vim
+
+let b:undo_ftplugin = 'setlocal comments< commentstring<'
+
+setlocal comments=s1fl:{-,mb:-,ex:-},:--
+setlocal commentstring=--\ %s
+" See `:h fo-table`.
+setlocal formatoptions-=t
+setlocal formatoptions+=croql
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
+
 function s:AgdaSendCommand(cmd)
+    " Full path of current file.
     let l:name = expand('%:p')
 
+    "
+    "   data IOTCM = IOTCM
+    "       FilePath            -- Always the current file.
+    "       HighlightingLevel   -- `None` as this plugin does not and will not
+    "                           -- support highlighting.
+    "       HighlightingMethod  -- Irrelevant.
+    "       Interaction
+    "
     let l:cmd = 'IOTCM "' . l:name . '" None Direct (' . a:cmd . ')'
 
     call chansend(g:agda_job, l:cmd . "\n")
 endfunction
 
 function s:AgdaLoad()
+    " Full path of current file.
     let l:name = expand('%:p')
 
-    let l:cmd = '(Cmd_load "' . l:name . '" [])'
+    "
+    "   data Interaction
+    "       = Cmd_load FilePath [String]
+    "       ...
+    "
+    " Loads `l:name` without passing any command-line options.
+    let l:cmd = 'Cmd_load "' . l:name . '" []'
 
     call s:AgdaSendCommand(l:cmd)
 endfunction
@@ -86,7 +124,6 @@ function s:AgdaCompute()
 
     let l:input = substitute(l:input, '\', '\\\\', 'g')
     let l:input = substitute(l:input, '"', '\\"', 'g')
-    let l:input = substitute(l:input, "\n", '\\n', 'g')
 
     let l:cmd = 'Cmd_compute_toplevel DefaultCompute "' . l:input . '"'
 
