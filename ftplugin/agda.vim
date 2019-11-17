@@ -115,24 +115,38 @@ function s:AgdaLoad()
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
+function s:EscapeString(str)
+    let l:str = substitute(a:str, '\', '\\\\', 'g')
+    let l:str = substitute(l:str, '"', '\\"', 'g')
+
+    return l:str
+endfunction
+
 function s:AgdaCompute()
     call inputsave()
 
-    let l:input = input('Expression: ')
+    let l:input = s:EscapeString(input('Expression: '))
 
     call inputrestore()
 
-    let l:input = substitute(l:input, '\', '\\\\', 'g')
-    let l:input = substitute(l:input, '"', '\\"', 'g')
-
+    "
+    "   data Interaction
+    "       ...
+    "       | Cmd_compute ComputeMode String
+    "       ...
+    "
+    " Type-check and normalize the given expression.
     let l:cmd = 'Cmd_compute_toplevel DefaultCompute "' . l:input . '"'
 
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
+" Gets text selected in Visual mode and returns it as a list of lines.
 function s:GetVisualSelection()
     try
         let l:a = @a
+        " gv    Visual reselect.
+        " "ay   Yank into register `a`.
         normal! gv"ay
         return split(@a, "\n")
     finally
@@ -144,8 +158,7 @@ function s:AgdaComputeSelection()
     let l:input = s:GetVisualSelection()
 
     for l:line in l:input
-        let l:line = substitute(l:line, '\', '\\\\', 'g')
-        let l:line = substitute(l:line, '"', '\\"', 'g')
+        let l:line = s:EscapeString(l:line)
 
         let l:cmd = 'Cmd_compute_toplevel DefaultCompute "' . l:line . '"'
 
