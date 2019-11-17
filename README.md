@@ -1,7 +1,21 @@
-### Useful Resources
+# Magda: Minimal Agda mode for Neovim
 
-https://github.com/banacorn/agda-mode/wiki/Conversations-between-Agda-&-agda-mode
+A plugin for those who cannot leave Neovim, not even for Evil mode.
 
-https://vim.fandom.com/wiki/User_input_from_a_script
+This plugin can be installed with [`vim-plug`][1].
 
-https://neovim.io/doc/user/job_control.html
+    call plug#begin()
+    Plug 'pedrominicz/agda'
+    call plug#end()
+
+As the name says, this is plugin provides _minimal_ Agda mode for Neovim (Vim not supported). This means no syntax highlighting nor anything fancy. You can only type-check a whole file and normalize expressions. This is enough for most situations.
+
+Three commands are provided: `:AgdaLoad`, `:AgdaCompute`, and `:AgdaComputeSelection`. `:AgdaLoad` type-checks a file and needs to be run at least once before normalizing expressions. `:AgdaCompute` type-checks and normalizes an expression and displays the result. `:AgdaComputeSelection` does the same thing, but instead of prompting the user it uses the last Visual mode selection.
+
+This means that you can write expressions comments, use blockwise Visual mode to select them, and `:AgdaComputeSelection` to normalize them. See `Test.agda` for a simple example. It is recommended to map these commands in your `init.vim`.
+
+I may add more simple features in the future.
+
+Fun fact: the name is a mix of magma (one of the simplest group-like structures) and Agda. "Minimal Agda mode for Neovim" just makes a good tagline.
+
+[1]: https://github.com/junegunn/vim-plug
