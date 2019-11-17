@@ -1,7 +1,9 @@
 if !exists('g:agda_started')
     " `OnEvent` and `ParseJson` functions deal with the output of the Agda
-    " process. Dealing with JSON is extremely easy thanks to Neovim's built-in
-    " function `json_decode`.
+    " process. Dealing with the Agda process is extremely easy thanks to the
+    " built-in function `json_decode` and Neovim's job control.
+
+    " `stdout` callback for the Agda job.
     function s:OnEvent(id, data, event) dict
         let l:msg = ''
 
@@ -169,7 +171,7 @@ let b:undo_ftplugin .= 'delcommand AgdaLoad |'
 let b:undo_ftplugin .= 'delcommand AgdaCompute |'
 let b:undo_ftplugin .= 'delcommand AgdaComputeSelection'
 
-" This is all the interface that this plugin exposes.
+" This is all the interface that Magda exposes.
 command -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
 command -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
 command -buffer -range -nargs=0 AgdaComputeSelection call s:AgdaComputeSelection()
