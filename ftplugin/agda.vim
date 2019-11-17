@@ -5,39 +5,46 @@ if !exists('g:agda_started')
         for l:line in a:data
             try
                 let l:json = json_decode(l:line)
-
-                if l:json.kind == 'DisplayInfo'
-                    if l:json.info.kind == 'AllGoalsWarnings'
-                        if l:json.info.errors != ''
-                            let l:msg .= "\n--- ERROR ---\n"
-                            let l:msg .= l:json.info.errors
-                        else
-                            let l:msg .= "OK"
-                        endif
-
-                        if l:json.info.warnings != ''
-                            let l:msg .= "\n--- WARNING ---\n"
-                            let l:msg .= l:json.info.warnings
-                        endif
-
-                        if l:json.info.goals != ''
-                            let l:msg .= "\n--- GOAL ---\n"
-                            let l:msg .= l:json.info.goals
-                        endif
-
-                    elseif l:json.info.kind == 'Error'
-                        let l:msg .= "\n--- ERROR ---\n"
-                        let l:msg .= l:json.info.payload
-
-                    elseif l:json.info.kind == 'NormalForm'
-                        let l:msg .= l:json.info.payload . "\n"
-                    endif
-                endif
+                let l:msg .= s:ParseJson(l:json)
             catch
             endtry
         endfor
 
         echo l:msg
+    endfunction
+
+    function s:ParseJson(json)
+        let l:msg = ''
+
+        if a:json.kind == 'DisplayInfo'
+            if a:json.info.kind == 'AllGoalsWarnings'
+                if a:json.info.errors != ''
+                    let l:msg .= "\n--- ERROR ---\n"
+                    let l:msg .= a:json.info.errors
+                else
+                    let l:msg .= "OK\n"
+                endif
+
+                if a:json.info.warnings != ''
+                    let l:msg .= "\n--- WARNING ---\n"
+                    let l:msg .= a:json.info.warnings
+                endif
+
+                if a:json.info.goals != ''
+                    let l:msg .= "\n--- GOAL ---\n"
+                    let l:msg .= a:json.info.goals
+                endif
+
+            elseif a:json.info.kind == 'Error'
+                let l:msg .= "\n--- ERROR ---\n"
+                let l:msg .= a:json.info.payload
+
+            elseif a:json.info.kind == 'NormalForm'
+                let l:msg .= a:json.info.payload . "\n"
+            endif
+        endif
+
+        return l:msg
     endfunction
 
     let g:agda_job = jobstart(['agda', '--interaction-json'], {
@@ -69,16 +76,11 @@ function s:AgdaLoad()
     call s:AgdaSendCommand(l:cmd)
 endfunction
 
-function s:AgdaCompute()
-    call inputsave()
-
-    let l:input = input('Expression: ')
-
-    call inputrestore()
+function s:AgdaCompute() range
+    let l:input = join(getline(a:firstline, a:lastline), '\\n')
 
     let l:input = substitute(l:input, '\', '\\\\', 'g')
     let l:input = substitute(l:input, '"', '\\"', 'g')
-    let l:input = substitute(l:input, "\n", '\\n', 'g')
 
     let l:cmd = 'Cmd_compute_toplevel DefaultCompute "' . l:input . '"'
 
@@ -86,4 +88,4 @@ function s:AgdaCompute()
 endfunction
 
 command! -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
-command! -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
+command! -buffer -range -nargs=0 AgdaCompute <line1>,<line2>call s:AgdaCompute()

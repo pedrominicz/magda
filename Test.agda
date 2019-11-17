@@ -1,4 +1,10 @@
-open import Data.Nat using (ℕ; _+_)
+data ℕ : Set where
+    zero : ℕ
+    suc  : ℕ → ℕ
 
-fun : ℕ → ℕ
-fun = ?
+_+_ : ℕ → ℕ → ℕ
+zero    + n = n
+(suc m) + n = suc (m + n)
+
+goal : ℕ → ℕ
+goal = ?
