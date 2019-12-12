@@ -5,7 +5,7 @@ A plugin for those who cannot leave Neovim, not even for Evil mode.
 This plugin can be installed with [`vim-plug`][1].
 
     call plug#begin()
-    Plug 'pedrominicz/agda'
+    Plug 'pedrominicz/magda'
     call plug#end()
 
 As the name says, this is plugin provides _minimal_ Agda mode for Neovim (Vim not supported). This means no syntax highlighting nor anything fancy. You can only type-check a whole file and normalize expressions. This is enough for most situations.
