@@ -49,9 +49,16 @@ if !exists('g:agda_started')
                 let l:msg .= "\n--- ERROR ---\n"
                 let l:msg .= a:json.info.payload
 
+            elseif a:json.info.kind == 'InferredType'
+                let l:msg .= "\n--- Inferred Type ---\n"
+                let l:msg .= a:json.info.payload
+
             elseif a:json.info.kind == 'NormalForm'
                 let l:msg .= a:json.info.payload . "\n"
             endif
+
+            " TODO(helq): Check API for all possible outcomes and add them to
+            " the output list
         endif
 
         return l:msg
@@ -127,6 +134,7 @@ function s:AgdaCompute()
     call inputsave()
 
     let l:input = s:EscapeString(input('Expression: '))
+    " TODO(helq): Check whether the input is empty or not
 
     call inputrestore()
 
@@ -167,14 +175,48 @@ function s:AgdaComputeSelection()
     endfor
 endfunction
 
+function s:AgdaInferType()
+    call inputsave()
+
+    let l:input = s:EscapeString(input('Expression: '))
+
+    call inputrestore()
+
+    "
+    "   data Interaction
+    "       ...
+    "       | Cmd_infer_toplevel ComputeMode String
+    "       ...
+    "
+    " Parse the given expression and infer its type.
+    let l:cmd = 'Cmd_infer_toplevel AsIs "' . l:input . '"'
+
+    call s:AgdaSendCommand(l:cmd)
+endfunction
+
+function s:AgdaInferTypeSelection()
+    let l:input = s:GetVisualSelection()
+
+    for l:line in l:input
+        let l:line = s:EscapeString(l:line)
+
+        let l:cmd = 'Cmd_infer_toplevel AsIs "' . l:line . '"'
+
+        call s:AgdaSendCommand(l:cmd)
+    endfor
+endfunction
+
 let b:undo_ftplugin .= 'delcommand AgdaLoad |'
 let b:undo_ftplugin .= 'delcommand AgdaCompute |'
-let b:undo_ftplugin .= 'delcommand AgdaComputeSelection'
+let b:undo_ftplugin .= 'delcommand AgdaComputeSelection |'
+let b:undo_ftplugin .= 'delcommand AgdaInferType'
 
 " This is all the interface that Magda exposes.
 command -buffer -nargs=0 AgdaLoad call s:AgdaLoad()
 command -buffer -nargs=0 AgdaCompute call s:AgdaCompute()
 command -buffer -range -nargs=0 AgdaComputeSelection call s:AgdaComputeSelection()
+command -buffer -nargs=0 AgdaInferType call s:AgdaInferType()
+command -buffer -range -nargs=0 AgdaInferTypeSelection call s:AgdaInferTypeSelection()
 
 let &cpo = s:cpo_save
 unlet s:cpo_save
