@@ -3,8 +3,8 @@
  -}
 
 data ℕ : Set where
-    zero : ℕ
-    suc  : ℕ → ℕ
+  zero : ℕ
+  suc  : ℕ → ℕ
 
 {-# BUILTIN NATURAL ℕ #-}
 
