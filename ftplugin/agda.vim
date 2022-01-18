@@ -10,7 +10,11 @@ if !exists('g:agda_started')
     for l:line in a:data
       if l:line =~ '^{.*}$'
         let l:json = json_decode(l:line)
-        let l:msg .= s:ParseJson(l:json)
+        try
+          let l:msg .= s:ParseJson(l:json)
+        catch
+          echo 'Error while parsing JSON: ' l:line
+        endtry
       endif
     endfor
 
@@ -48,8 +52,7 @@ if !exists('g:agda_started')
         endif
 
       elseif a:json.info.kind == 'Error'
-        let l:msg .= "\n--- Error ---\n"
-        let l:msg .= a:json.info.payload
+        let l:msg .= 'Error: ' . a:json.info.error.message . "\n"
 
       elseif a:json.info.kind == 'InferredType'
         let l:msg .= "\n--- Inferred Type ---\n"
