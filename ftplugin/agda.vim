@@ -40,7 +40,7 @@ if !exists('g:agda_started')
 
         if a:json.info.warnings != []
           for l:warning in a:json.info.warnings
-            let l:msg .= 'Warning: ' . l:warning . "\n"
+            let l:msg .= 'Warning: ' . l:warning.message . "\n"
           endfor
         endif
 
