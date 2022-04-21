@@ -13,7 +13,7 @@ if !exists('g:agda_started')
         try
           let l:msg .= s:ParseJson(l:json)
         catch
-          echo 'Error while parsing JSON: ' l:line
+          echo 'Error while parsing JSON: ' l:line . v:exception
         endtry
       endif
     endfor
