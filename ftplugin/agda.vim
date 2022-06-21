@@ -32,7 +32,7 @@ if !exists('g:agda_started')
       if a:json.info.kind == 'AllGoalsWarnings'
         if a:json.info.errors != []
           for l:error in a:json.info.errors
-            let l:msg .= "Error: " . l:error . "\n"
+            let l:msg .= "Error: " . l:error.message . "\n"
           endfor
         else
           let l:msg .= "OK\n"
