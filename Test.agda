@@ -22,6 +22,9 @@ zero    * n = zero
 goal : ℕ → ℕ
 goal = ?
 
+goal2 : ℕ → ℕ
+goal2 = ?
+
 -- zero + suc zero
 -- suc zero + suc zero
 -- suc (suc zero) + suc zero

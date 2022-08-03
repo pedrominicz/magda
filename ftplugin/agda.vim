@@ -32,7 +32,7 @@ if !exists('g:agda_started')
       if a:json.info.kind == 'AllGoalsWarnings'
         if a:json.info.errors != []
           for l:error in a:json.info.errors
-            let l:msg .= "Error: " . l:error.message . "\n"
+            let l:msg .= 'Error: ' . l:error.message . "\n"
           endfor
         else
           let l:msg .= "OK\n"
@@ -44,10 +44,11 @@ if !exists('g:agda_started')
           endfor
         endif
 
-        if a:json.info.visibleGoals != []
-          let l:msg .= "\n--- Goals ---\n"
+        let l:length = len(a:json.info.visibleGoals)
+        if l:length > 0
+          let l:msg .= l:length == 1 ? "Goal:\n" : "Goals:\n"
           for l:goal in a:json.info.visibleGoals
-            let l:msg .= l:goal.constraintObj.id . ': ' . l:goal.type . ', Kind: ' . l:goal.kind . "\n"
+            let l:msg .= l:goal.constraintObj.id . ': ' . l:goal.type . ' (Kind: ' . l:goal.kind . ")\n"
           endfor
         endif
 
@@ -55,12 +56,10 @@ if !exists('g:agda_started')
         let l:msg .= 'Error: ' . a:json.info.error.message . "\n"
 
       elseif a:json.info.kind == 'InferredType'
-        let l:msg .= "\n--- Inferred Type ---\n"
-        let l:msg .= a:json.info.payload
+        let l:msg .= 'Inferred Type: ' . a:json.info.expr . "\n"
 
       elseif a:json.info.kind == 'NormalForm'
-        let l:msg .= "\n--- Normal Form ---\n"
-        let l:msg .= a:json.info.payload
+        let l:msg .= 'Normal Form: ' . a:json.info.expr . "\n"
       endif
 
       " TODO: check API for all possible outcomes and add them to the output

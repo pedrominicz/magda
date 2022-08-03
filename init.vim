@@ -10,6 +10,6 @@ augroup agda
 
   " Visual mode bindings.
   autocmd Filetype agda vnoremap <buffer> <localleader>al <cmd>write<cr><cmd>AgdaLoad<cr>
-  autocmd Filetype agda vnoremap <buffer> <localleader>an <cmd>AgdaComputeSelection<cr>
-  autocmd Filetype agda vnoremap <buffer> <localleader>at <cmd>AgdaInferTypeSelection<cr>
+  autocmd Filetype agda vnoremap <buffer> <localleader>an :AgdaComputeSelection<cr>
+  autocmd Filetype agda vnoremap <buffer> <localleader>at :AgdaInferTypeSelection<cr>
 augroup END

@@ -1,3 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 
-nvim -u 'init.vim' --cmd "set rtp+=$(realpath .)" Test.agda
+set -e
+
+nvim --clean --cmd 'source init.vim' --cmd "set rtp+=$(realpath .)" Test.agda
