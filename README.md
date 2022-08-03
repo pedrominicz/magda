@@ -12,7 +12,7 @@ As the name says, this is plugin provides _minimal_ Agda mode for Neovim (Vim no
 
 Three commands are provided: `:AgdaLoad`, `:AgdaCompute`, and `:AgdaComputeSelection`. `:AgdaLoad` type-checks a file and needs to be run at least once before normalizing expressions. `:AgdaCompute` type-checks and normalizes an expression and displays the result. `:AgdaComputeSelection` does the same thing, but instead of prompting the user it uses the last Visual mode selection.
 
-This means you can write expressions in comments, use blockwise Visual mode to select them, and use `:AgdaComputeSelection` to normalize them. See `Test.agda` for a simple example. It is recommended to map these commands in your `init.vim`. You can see an example how to do that in `./init.vim`.
+This means you can write expressions in comments, use blockwise Visual mode to select them, and use `:AgdaComputeSelection` to normalize them. See `Test.agda` for a simple example. It is recommended to add mappings to these commands in your Neovim configuration file. You can see an example how to do that in `init.vim`.
 
 I may add more simple features in the future.
 
