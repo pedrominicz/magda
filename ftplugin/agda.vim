@@ -8,11 +8,14 @@ if !exists('g:agda_started')
     let l:msg = ''
 
     for l:line in a:data
-      try
+      if l:line =~ '^{.*}$'
         let l:json = json_decode(l:line)
-        let l:msg .= s:ParseJson(l:json)
-      catch
-      endtry
+        try
+          let l:msg .= s:ParseJson(l:json)
+        catch
+          echo 'Error while parsing JSON: ' l:line . v:exception
+        endtry
+      endif
     endfor
 
     " For now all feedback is provided via echoes. Maybe opening an auxiliary
@@ -27,26 +30,29 @@ if !exists('g:agda_started')
 
     if a:json.kind == 'DisplayInfo'
       if a:json.info.kind == 'AllGoalsWarnings'
-        if a:json.info.errors != ''
-          let l:msg .= "\n--- Error ---\n"
-          let l:msg .= a:json.info.errors
+        if a:json.info.errors != []
+          for l:error in a:json.info.errors
+            let l:msg .= "Error: " . l:error.message . "\n"
+          endfor
         else
           let l:msg .= "OK\n"
         endif
 
-        if a:json.info.warnings != ''
-          let l:msg .= "\n--- Warning ---\n"
-          let l:msg .= a:json.info.warnings
+        if a:json.info.warnings != []
+          for l:warning in a:json.info.warnings
+            let l:msg .= 'Warning: ' . l:warning.message . "\n"
+          endfor
         endif
 
-        if a:json.info.goals != ''
-          let l:msg .= "\n--- Goal ---\n"
-          let l:msg .= a:json.info.goals
+        if a:json.info.visibleGoals != []
+          let l:msg .= "\n--- Goals ---\n"
+          for l:goal in a:json.info.visibleGoals
+            let l:msg .= l:goal.constraintObj.id . ': ' . l:goal.type . ', Kind: ' . l:goal.kind . "\n"
+          endfor
         endif
 
       elseif a:json.info.kind == 'Error'
-        let l:msg .= "\n--- Error ---\n"
-        let l:msg .= a:json.info.payload
+        let l:msg .= 'Error: ' . a:json.info.error.message . "\n"
 
       elseif a:json.info.kind == 'InferredType'
         let l:msg .= "\n--- Inferred Type ---\n"
